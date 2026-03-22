@@ -1,167 +1,59 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PulseTrade Live Safe</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta charset="UTF-8">
+  <title>PulseTrade Live</title>
   <style>
-    :root{--bg:#0f172a;--panel:#1e293b;--panel2:#0b1220;--txt:#e5e7eb;--muted:#94a3b8;--green:#16a34a;--blue:#2563eb}
-    *{box-sizing:border-box}
-    body{margin:0;padding:20px;background:var(--bg);color:var(--txt);font-family:Arial,Helvetica,sans-serif}
-    .wrap{max-width:1200px;margin:auto}.card{background:var(--panel);border-radius:18px;padding:18px;margin-bottom:18px}
-    .grid{display:grid;grid-template-columns:1.1fr .9fr;gap:18px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-    @media(max-width:920px){.grid,.grid2,.grid3,.grid4{grid-template-columns:1fr}}
-    h1,h2{margin:0 0 10px}label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
-    select,input,button{width:100%;padding:12px;border:none;border-radius:12px;font-size:16px}
-    button{font-weight:700;cursor:pointer}.primary{background:var(--green);color:#04120a}.secondary{background:var(--blue);color:#fff}.dark{background:var(--panel2);color:#fff}
-    .signal{font-size:38px;font-weight:900;text-align:center;padding:24px;border-radius:16px;background:#92400e}.buy{background:#166534}
-    .kpi{background:var(--panel2);padding:14px;border-radius:14px}.kpi .l{font-size:12px;color:var(--muted)}.kpi .v{font-size:24px;font-weight:800;margin-top:4px}
-    .notice{background:#112031;border:1px solid #29415d;padding:12px 14px;border-radius:12px;line-height:1.5}
-    table{width:100%;border-collapse:collapse}td,th{padding:10px 8px;border-bottom:1px solid #334155;text-align:left}
-    .small{color:var(--muted);font-size:13px}.log{background:var(--panel2);padding:12px;border-radius:12px;max-height:280px;overflow:auto}pre{background:var(--panel2);padding:12px;border-radius:12px;white-space:pre-wrap}canvas{background:#fff;border-radius:12px;padding:8px}
+    body {
+      background: #0f172a;
+      color: white;
+      font-family: Arial;
+      text-align: center;
+      padding-top: 100px;
+    }
+    button {
+      padding: 15px 25px;
+      margin: 10px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .green { background: #22c55e; }
+    .blue { background: #3b82f6; }
+    .red { background: #ef4444; }
   </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="card">
-    <h1>PulseTrade Live Safe</h1>
-    <div class="small">Modalità live sicura: segnali veri, Telegram, buy manuale live, auto buy live disattivato di default.</div>
-  </div>
 
-  <div class="grid">
-    <div class="card">
-      <h2>Controlli</h2>
-      <div class="grid2">
-        <div><label>Asset</label><select id="asset"><option value="bitcoin">Bitcoin (BTC)</option><option value="ethereum">Ethereum (ETH)</option></select></div>
-        <div><label>Intervallo</label><select id="interval"><option value="15m">15m</option><option value="1h" selected>1h</option><option value="4h">4h</option></select></div>
-      </div>
+  <h1>🚀 PulseTrade LIVE</h1>
 
-      <div class="grid2" style="margin-top:12px">
-        <div><label>Importo trade</label><input id="tradeAmount" type="number" value="10"></div>
-        <div><label>Rischio %</label><select id="riskPct"><option value="0.5">0.5%</option><option value="1" selected>1%</option><option value="1.5">1.5%</option></select></div>
-      </div>
+  <button class="green" onclick="fetch('/api/start', {method:'POST'})">
+    Avvia Monitor
+  </button>
 
-      <div class="grid2" style="margin-top:12px">
-        <div><label>Soglia score</label><select id="minScore"><option value="68" selected>68</option><option value="60">60</option><option value="55">55</option></select></div>
-        <div><label>Stato</label><input id="integrationState" value="-" disabled></div>
-      </div>
+  <button class="red" onclick="fetch('/api/stop', {method:'POST'})">
+    Ferma Monitor
+  </button>
 
-      <div class="grid3" style="margin-top:12px">
-        <button class="primary" onclick="analyze()">Analizza</button>
-        <button class="secondary" onclick="testTelegram()">Test Telegram</button>
-        <button class="dark" onclick="refreshState()">Aggiorna stato</button>
-      </div>
+  <button class="blue" onclick="fetch('/api/telegram/test', {method:'POST'})">
+    Test Telegram
+  </button>
 
-      <div class="grid3" style="margin-top:12px">
-        <button class="primary" onclick="startMonitor()">Avvia monitor</button>
-        <button class="dark" onclick="stopMonitor()">Ferma monitor</button>
-        <button class="secondary" onclick="manualBuy()">BUY manuale</button>
-      </div>
+  <button class="blue" onclick="fetch('/api/binance/ping')">
+    Ping Binance
+  </button>
 
-      <div class="grid3" style="margin-top:12px">
-        <button class="secondary" onclick="pingBinance()">Ping Binance</button>
-        <button class="secondary" onclick="binanceTime()">Ora server Binance</button>
-        <button class="dark" onclick="testOrder()">Test ordine</button>
-      </div>
+  <p id="status"></p>
 
-      <div id="status" class="notice" style="margin-top:12px">Pronto.</div>
-      <div style="margin-top:14px"><canvas id="chart" height="120"></canvas></div>
-    </div>
+  <script>
+    setInterval(async () => {
+      const res = await fetch('/api/state');
+      const data = await res.json();
+      document.getElementById('status').innerText =
+        "Monitor: " + (data.running ? "ATTIVO" : "FERMO");
+    }, 2000);
+  </script>
 
-    <div class="card">
-      <h2>Segnale</h2>
-      <div id="signalBox" class="signal">ATTENDI</div>
-      <div id="why" class="notice" style="margin-top:12px">Qui comparirà la spiegazione del segnale.</div>
-
-      <div class="grid4" style="margin-top:14px">
-        <div class="kpi"><div class="l">Prezzo</div><div class="v" id="livePrice">-</div></div>
-        <div class="kpi"><div class="l">Confidenza</div><div class="v" id="confidence">0%</div></div>
-        <div class="kpi"><div class="l">Score</div><div class="v" id="score">0</div></div>
-        <div class="kpi"><div class="l">RSI</div><div class="v" id="rsiVal">-</div></div>
-      </div>
-
-      <table style="margin-top:14px">
-        <tr><th>Voce</th><th>Valore</th></tr>
-        <tr><td>Entry</td><td id="entry">-</td></tr>
-        <tr><td>TP</td><td id="tp">-</td></tr>
-        <tr><td>SL</td><td id="sl">-</td></tr>
-        <tr><td>Size</td><td id="size">-</td></tr>
-        <tr><td>Rischio stimato</td><td id="riskValue">-</td></tr>
-        <tr><td>Profitto stimato</td><td id="profitValue">-</td></tr>
-      </table>
-
-      <pre id="tradePlan">Nessun piano disponibile.</pre>
-    </div>
-  </div>
-
-  <div class="grid">
-    <div class="card"><h2>Posizioni aperte</h2><div id="positions" class="small">Nessuna posizione.</div></div>
-    <div class="card"><h2>Log</h2><div id="logs" class="log">Nessun log.</div></div>
-  </div>
-</div>
-
-<script>
-let chart = null;
-function fmt(n, d=2){ return Number(n).toLocaleString("it-IT",{minimumFractionDigits:d,maximumFractionDigits:d}); }
-async function api(path, method="GET", body=null){
-  const res = await fetch(path,{ method, headers: body ? {"Content-Type":"application/json"} : {}, body: body ? JSON.stringify(body) : null });
-  return await res.json();
-}
-function drawChart(prices){
-  const ctx = document.getElementById("chart");
-  if(chart) chart.destroy();
-  chart = new Chart(ctx,{type:"line",data:{labels:prices.map((_,i)=>i+1),datasets:[{data:prices,borderWidth:2,pointRadius:0,tension:0.25}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{display:false},y:{display:true}}}});
-}
-async function analyze(){
-  const asset=document.getElementById("asset").value;
-  const interval=document.getElementById("interval").value;
-  const tradeAmount=document.getElementById("tradeAmount").value;
-  const riskPct=document.getElementById("riskPct").value;
-  const minScore=document.getElementById("minScore").value;
-  const data=await api(`/api/analyze?asset=${asset}&interval=${interval}&limit=200&tradeAmount=${tradeAmount}&riskPct=${riskPct}&minScore=${minScore}`);
-  if(!data.ok){document.getElementById("status").innerText=data.error;return;}
-  const s=data.signal;
-  document.getElementById("signalBox").className="signal "+(s.signal==="COMPRA"?"buy":"");
-  document.getElementById("signalBox").innerText=s.signal;
-  document.getElementById("why").innerHTML="<b>Perché:</b> "+s.reasons.join(", ");
-  document.getElementById("livePrice").innerText=fmt(s.price,2);
-  document.getElementById("confidence").innerText=s.confidence+"%";
-  document.getElementById("score").innerText=s.score;
-  document.getElementById("rsiVal").innerText=fmt(s.rsi,1);
-  document.getElementById("entry").innerText=fmt(s.entry,2);
-  document.getElementById("tp").innerText=fmt(s.tp,2);
-  document.getElementById("sl").innerText=fmt(s.sl,2);
-  document.getElementById("size").innerText=fmt(s.size,6);
-  document.getElementById("riskValue").innerText=fmt(s.riskValue,2);
-  document.getElementById("profitValue").innerText=fmt(s.profitValue,2);
-  document.getElementById("tradePlan").innerText=`ASSET: ${s.asset.toUpperCase()}\nSIMBOLO: ${s.symbol}\nSEGNALE: ${s.signal}\nENTRY: ${fmt(s.entry,2)}\nTP: ${fmt(s.tp,2)}\nSL: ${fmt(s.sl,2)}\nSIZE: ${fmt(s.size,6)}`;
-  document.getElementById("status").innerText="Analisi completata.";
-  drawChart(data.prices);
-}
-async function refreshState(){
-  const data=await api("/api/state");
-  document.getElementById("integrationState").value=`${data.telegram?"Telegram OK":"Telegram NO"} / ${data.binanceConfigured?"Binance OK":"Binance NO"} / ${data.mode || "-"}`;
-  document.getElementById("logs").innerHTML=(data.logs||[]).length ? data.logs.map(l=>`<div style="margin-bottom:8px">[${l.time}] ${l.message}</div>`).join("") : "Nessun log.";
-  document.getElementById("positions").innerHTML=(data.openPositions||[]).length ? data.openPositions.map(p=>`<div style="padding:10px 0;border-bottom:1px solid #334155"><b>${p.asset.toUpperCase()}</b><br>Simbolo: ${p.symbol}<br>Qty: ${p.qty}<br>Entry: ${fmt(p.entry,2)}<br>TP: ${fmt(p.tp,2)}<br>SL: ${fmt(p.sl,2)}<br>Mode: ${p.mode}</div>`).join("") : "Nessuna posizione.";
-}
-async function testTelegram(){ const data=await api("/api/telegram/test","POST"); document.getElementById("status").innerText=JSON.stringify(data); }
-async function startMonitor(){ const data=await api("/api/start","POST"); document.getElementById("status").innerText=JSON.stringify(data); refreshState(); }
-async function stopMonitor(){ const data=await api("/api/stop","POST"); document.getElementById("status").innerText=JSON.stringify(data); refreshState(); }
-async function pingBinance(){ const data=await api("/api/binance/ping"); document.getElementById("status").innerText=JSON.stringify(data); }
-async function binanceTime(){ const data=await api("/api/binance/time"); document.getElementById("status").innerText=JSON.stringify(data); }
-async function testOrder(){ const data=await api("/api/binance/order-test","POST",{symbol:"ETHUSDT",quantity:"0.001"}); document.getElementById("status").innerText=JSON.stringify(data); }
-async function manualBuy(){
-  const asset=document.getElementById("asset").value;
-  const interval=document.getElementById("interval").value;
-  const tradeAmount=document.getElementById("tradeAmount").value;
-  const riskPct=document.getElementById("riskPct").value;
-  const minScore=document.getElementById("minScore").value;
-  const data=await api("/api/binance/manual-buy","POST",{asset,interval,limit:200,tradeAmount,riskPct,minScore});
-  document.getElementById("status").innerText=JSON.stringify(data);
-  refreshState();
-}
-refreshState();
-</script>
 </body>
 </html>
