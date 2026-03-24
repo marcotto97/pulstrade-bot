@@ -42,7 +42,7 @@ const LIVE_TRADING_ENABLED = String(process.env.LIVE_TRADING_ENABLED || "false")
 const AUTO_BUY_LIVE = String(process.env.AUTO_BUY_LIVE || "false").toLowerCase() === "true";
 
 const ASSETS = ["bitcoin", "ethereum"];
-const SYMBOL_MAP = { bitcoin: "BTCUSDT", ethereum: "ETHUSDT", solana: "SOLUSDT", ripple: "XRPUSDT" };
+const SYMBOL_MAP = { bitcoin: "BTCUSDC", ethereum: "ETHUSDC", solana: "SOLUSDC", ripple: "XRPUSDC" };
 
 let monitor = { running: false, timer: null, lastScanAt: null, logs: [], lastSignals: [], sentAlerts: {}, openPositions: [] };
 
